@@ -26,11 +26,15 @@ app.use("/Upload", express.static("./Upload"));
 app.use(cors({
   origin: [
     "https://messwala-meal-subscription.vercel.app",
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "http://localhost:3000"
   ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  optionsSuccessStatus: 200
 }));
+
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
