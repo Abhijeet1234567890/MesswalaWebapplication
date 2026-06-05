@@ -22,19 +22,7 @@ import Razorpay from "razorpay";
 
 const app = express();
 app.use("/Upload", express.static("./Upload"));
-
-app.use(cors({
-  origin: [
-    "https://messwala-meal-subscription.vercel.app",
-    "http://localhost:5173",
-    "http://localhost:3000"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  credentials: true,
-  allowedHeaders: ["Content-Type", "Authorization"],
-  optionsSuccessStatus: 200
-}));
-
+app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -68,9 +56,14 @@ const storage = multer.diskStorage({
 });
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID,
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
+  key_id: process.env.RAZORPAY_KEY_ID?.trim(),
+  key_secret: process.env.RAZORPAY_KEY_SECRET?.trim(),
 });
+
+console.log("✓ Razorpay Key ID loaded:", process.env.RAZORPAY_KEY_ID ? "✅" : "❌");
+console.log("✓ Razorpay Secret loaded:", process.env.RAZORPAY_KEY_SECRET ? "✅" : "❌");
+console.log("📌 Razorpay Key ID:", process.env.RAZORPAY_KEY_ID);
+console.log("📌 Razorpay Secret:", process.env.RAZORPAY_KEY_SECRET?.substring(0, 5) + "***");
 
 const upload = multer({ storage: storage });
 
@@ -693,17 +686,27 @@ app.post("/getmessstart", async (req, res) => {
 
 app.post("/definemenu", upload.single("file"), async (req, res) => {
   try {
-    const { name, discription, day, messId } = req.body;
+    const { name, description, day, messId } = req.body;
 
-    if (!name || !discription || !day || !messId || !req.file) {
+    console.log("📝 DefineMenu Request Body:", req.body);
+    console.log("📁 File Info:", req.file);
+
+    if (!name || !description || !day || !messId || !req.file) {
       return res.status(400).json({
         message: "All fields are required",
+        received: {
+          name: !!name,
+          description: !!description,
+          day: !!day,
+          messId: !!messId,
+          file: !!req.file
+        }
       });
     }
 
     const menu = new DefineMenuModel({
       name,
-      discription,
+      discription: description,  // Store with old field name in DB
       day,
       messid: messId,
       file: req.file.filename,
@@ -769,18 +772,34 @@ app.post("/checkmenu", async (req, res) => {
 
   const { messid, menu } = req.body;
 
+  console.log("🔍 CheckMenu Request Body:", req.body);
+  console.log("📌 Looking for messid:", messid, "day:", menu);
+
   try {
+
+    if (!messid || !menu) {
+      return res.status(400).json({
+        message: "messid and menu are required",
+        received: {
+          messid: !!messid,
+          menu: !!menu
+        }
+      });
+    }
 
     const result = await DefineMenuModel.find({
       messid,
       day: menu
     });
 
+    console.log("✅ Found menus:", result.length);
+
     // ✅ Correct check
     if (result.length === 0) {
 
-      return res.status(400).json({
-        message: "Mess Menu Are Not Define"
+      return res.status(200).json({
+        message: "Mess Menu Are Not Define",
+        result: []
       });
     }
 
@@ -791,10 +810,11 @@ app.post("/checkmenu", async (req, res) => {
 
   } catch (error) {
 
-    console.log(error);
+    console.log("CheckMenu Error:", error);
 
     res.status(500).json({
-      message: "Server Error"
+      message: "Server Error",
+      error: error.message
     });
   }
 });
@@ -1018,6 +1038,8 @@ app.post("/create-order", async (req, res) => {
       });
     }
 
+    console.log("Creating order with Razorpay Key ID:", process.env.RAZORPAY_KEY_ID);
+
     const order = await razorpay.orders.create({
       amount: Number(amount) * 100,
       currency: "INR",
@@ -1032,13 +1054,23 @@ app.post("/create-order", async (req, res) => {
     return res.status(200).json({
       message: "Order Created",
       order,
+      razorpayKey: process.env.RAZORPAY_KEY_ID,
     });
   } catch (error) {
     console.log("CREATE ORDER ERROR:", error);
+    console.log("Error details:", error.statusCode, error.error);
     return res.status(500).json({
       message: error.message || "Order create failed",
+      error: error.error,
     });
   }
+});
+
+/* Get Razorpay Key */
+app.get("/get-razorpay-key", (req, res) => {
+  res.json({
+    razorpayKey: process.env.RAZORPAY_KEY_ID,
+  });
 });
 
 app.post("/verify-payment", async (req, res) => {
