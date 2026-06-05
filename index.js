@@ -13,7 +13,7 @@ import { MessStartedModel } from "./Shama/MessStarted.js";
 dotenv.config();
 import { InstanceModel } from "./Shama/Instncefood.js";
 import CustomMessageModel from "./Shama/custommessages.js";
-import { PDFParse } from "pdf-parse";
+
 import path from "path";
 import fs from "fs"
 import PDFDocument from "pdfkit";
