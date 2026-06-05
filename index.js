@@ -22,7 +22,15 @@ import Razorpay from "razorpay";
 
 const app = express();
 app.use("/Upload", express.static("./Upload"));
-app.use(cors());
+
+app.use(cors({
+  origin: [
+    "https://messwala-meal-subscription.vercel.app",
+    "http://localhost:5173"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
@@ -40,7 +48,7 @@ const chroma = new CloudClient({
 
 /* MongoDb Connection */
 await mongoose.connect(
-    "mongodb+srv://gajadhanetathaget_db_user:Abhi1234@cluster0.ux0gexr.mongodb.net/Mess?appName=Cluster0"
+   process.env.MONGO_URI
 );
 
 console.log("Mongodb Is Connected!!")
