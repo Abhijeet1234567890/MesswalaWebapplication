@@ -1,0 +1,32 @@
+{
+  "name": "messfinalproject",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@chroma-core/default-embed": "^0.1.9",
+    "@google/gemini-cli": "^0.37.1",
+    "@google/genai": "^1.50.1",
+    "chroma-js": "^3.2.0",
+    "chromadb": "^3.4.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.1",
+    "ejs": "^5.0.1",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "mongodb": "^7.1.1",
+    "mongoose": "^9.4.1",
+    "multer": "^2.1.1",
+    "nodemon": "^3.1.14",
+    "pdf-parse": "^2.4.5",
+    "pdfkit": "^0.18.0",
+    "razorpay": "^2.9.6",
+    "react-native-razorpay": "^3.0.0"
+  }
+}
