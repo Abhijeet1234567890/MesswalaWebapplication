@@ -4,3 +4,7 @@ dist
 build
 .git
 .env
+*.pdf
+*.zip
+*.png
+*.jpg
