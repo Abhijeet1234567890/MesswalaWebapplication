@@ -1544,6 +1544,8 @@ app.post("/endmess", async (req, res) => {
     });
   }
 });
+
+console.log("Mongo URI exists:", !!process.env.MONGO_URI);
 app.listen(2000, () => {
     console.log("Server Run On 2000 port");
 });
